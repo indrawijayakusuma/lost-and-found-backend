@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "@hapi/hapi": "^21.3.9"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "3.2.5"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend of lost and found",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "start-dev": "node --watch ./src/server.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
