@@ -1,0 +1,4 @@
+SELECT * FROM users;
+DELETE FROM users;
+SELECT * FROM otps
+DELETE FROM otps
