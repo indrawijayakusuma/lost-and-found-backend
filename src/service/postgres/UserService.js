@@ -37,6 +37,7 @@ class UserService {
     } else {
       convertedPhone = phone;
     }
+
     await this.verifyNewUsername(username);
     await this.verifyNewPhone(convertedPhone);
 
@@ -84,9 +85,15 @@ class UserService {
   }
 
   async verifyUserCredential(phone, password) {
+    let convertedPhone;
+    if (phone.charAt(0) === '0') {
+      convertedPhone = phone.substring(1);
+    } else {
+      convertedPhone = phone;
+    }
     const query = {
       text: 'SELECT user_id, password FROM users WHERE phone = $1 AND is_verified = true',
-      values: [phone],
+      values: [convertedPhone],
     };
 
     const result = await this.pool.query(query);

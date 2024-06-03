@@ -1,3 +1,5 @@
+const twilio = require('../../utlis/twilio');
+
 class UserHandler {
   constructor(service, validator, otpservice) {
     this.service = service;
@@ -10,7 +12,18 @@ class UserHandler {
     const { phone } = request.payload;
 
     await this.service.createUser(request.payload);
-    await this.otpservice.createOtp(phone);
+    const otp = await this.otpservice.createOtp(phone);
+    let convertedPhone;
+    if (phone.charAt(0) === '0') {
+      convertedPhone = phone.substring(1);
+    } else {
+      convertedPhone = phone;
+    }
+    await twilio.messages.create({
+      from: 'whatsapp:+14155238886',
+      body: `${otp} adalah kode verifikasi anda. Demi keamanan akun anda.`,
+      to: `whatsapp:+62${convertedPhone}`,
+    });
 
     const response = h.response({
       status: 'success',

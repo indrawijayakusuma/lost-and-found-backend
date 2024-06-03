@@ -1,7 +1,11 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-unused-vars */
 const Hapi = require('@hapi/hapi');
 require('dotenv').config();
 const HapiAuthJwt2 = require('hapi-auth-jwt2');
+
+const Inert = require('@hapi/inert');
+const path = require('path');
 
 const users = require('./api/users');
 const UserValidator = require('./validator/users');
@@ -16,9 +20,18 @@ const otp = require('./api/otp');
 const OtpValidator = require('./validator/otp');
 const OtpService = require('./service/postgres/OtpService');
 
+const post = require('./api/post');
+const postValidator = require('./validator/posts');
+const PostService = require('./service/postgres/PostService');
+const FoundItemService = require('./service/postgres/FoundItemService');
+const LocationService = require('./service/postgres/LocationService');
+
 const init = async () => {
   const usersService = new UserService();
   const otpService = new OtpService();
+  const postService = new PostService();
+  const foundItemService = new FoundItemService();
+  const locationService = new LocationService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -31,6 +44,7 @@ const init = async () => {
   });
 
   await server.register(HapiAuthJwt2);
+  await server.register(Inert);
 
   server.auth.strategy('jwt', 'jwt', {
     key: process.env.ACCESS_TOKEN_SECRET,
@@ -73,6 +87,15 @@ const init = async () => {
         otpService,
         validator: OtpValidator,
         usersService,
+      },
+    },
+    {
+      plugin: post,
+      options: {
+        postService,
+        validator: postValidator,
+        foundItemService,
+        locationService,
       },
     },
   ]);

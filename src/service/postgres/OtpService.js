@@ -37,7 +37,7 @@ class OtpService {
     let query;
     if (await this.getOtpByPhone(phone)) {
       query = {
-        text: 'UPDATE otps SET otp_code = $1, otp_expires = $2 WHERE phone = $3 returning *',
+        text: 'UPDATE otps SET otp_code = $1, otp_expires = $2 WHERE phone = $3 returning otp_code',
         values: [otp, otpExpires, convertedPhone],
       };
     } else {
@@ -50,6 +50,7 @@ class OtpService {
     if (!result.rowCount) {
       throw new InvariantError('Gagal menambahkan OTP');
     }
+    return result.rows[0].otp_code;
   }
 
   async getOtpByPhone(phone) {
