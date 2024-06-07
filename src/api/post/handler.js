@@ -2,11 +2,12 @@ const fs = require('fs');
 const cloudinary = require('../../utlis/cloudinary');
 
 class PostHandler {
-  constructor(postService, foundItemService, locationService, validator) {
+  constructor(postService, foundItemService, locationService, QustionService, validator) {
     this.foundItemService = foundItemService;
     this.postService = postService;
     this.validator = validator;
     this.locationService = locationService;
+    this.questionService = QustionService;
   }
 
   async postPostHandler(request, h) {
@@ -29,6 +30,8 @@ class PostHandler {
 
     fs.unlinkSync(image.path);
 
+    const questions = JSON.parse(request.payload.questions);
+
     const postId = await this.postService.createPost({ userId });
 
     await this.foundItemService.createFoundItem({
@@ -38,6 +41,8 @@ class PostHandler {
     await this.locationService.createLocation({
       labelLocation, location, address, additionalInfo, postId,
     });
+
+    await this.questionService.createQuestion({ questions, postId });
 
     const response = h.response({
       status: 'success',

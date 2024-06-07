@@ -11,6 +11,7 @@ const PostPostPayloadSchema = Joi.object({
   location: Joi.string().required(),
   address: Joi.string().required(),
   additionalInfo: Joi.string().required(),
+  questions: Joi.string().required(),
 });
 
 const ImageHeadersSchema = Joi.object({

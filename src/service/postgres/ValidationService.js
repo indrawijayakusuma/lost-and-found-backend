@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 
-class ValidationAnswer {
+class ValidationService {
   constructor(pool) {
     this.pool = pool;
   }
@@ -11,7 +11,7 @@ class ValidationAnswer {
     const date = new Date();
 
     const query = {
-      text: 'INSERT INTO validations VALUES($1, $2, $3, $4, $5) RETURNING *',
+      text: 'INSERT INTO validations VALUES($1, $2, $3, $4, $5) RETURNING validation_id',
       values: [id, statusValidation, date, postId, validationUserId],
     };
 
@@ -20,6 +20,8 @@ class ValidationAnswer {
     if (!result.rowCount) {
       throw new InvariantError('Failed to create validation');
     }
+
+    return result.rows[0].validation_id;
   }
 
   async updateValidation({ id, statusValidation }) {
@@ -35,4 +37,4 @@ class ValidationAnswer {
   }
 }
 
-module.exports = ValidationAnswer;
+module.exports = ValidationService;

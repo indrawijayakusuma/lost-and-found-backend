@@ -7,11 +7,11 @@ class QuestionService {
     this.pool = new Pool();
   }
 
-  async createQuestion({ question, postId }) {
+  async createQuestion({ questions, postId }) {
     const id = `question-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO questions VALUES($1, $2, $3) RETURNING *',
-      values: [id, question, postId],
+      values: [id, questions, postId],
     };
     const result = await this.pool.query(query);
     if (!result.rowCount) {

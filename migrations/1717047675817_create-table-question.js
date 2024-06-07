@@ -6,7 +6,7 @@ exports.up = (pgm) => {
       primaryKey: true,
     },
     question: {
-      type: 'TEXT',
+      type: 'TEXT[]',
       notNull: true,
     },
     post_id: {

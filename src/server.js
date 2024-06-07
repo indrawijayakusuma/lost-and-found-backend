@@ -25,6 +25,12 @@ const postValidator = require('./validator/posts');
 const PostService = require('./service/postgres/PostService');
 const FoundItemService = require('./service/postgres/FoundItemService');
 const LocationService = require('./service/postgres/LocationService');
+const AnswerService = require('./service/postgres/AnswerService');
+const QuestionService = require('./service/postgres/QuestionService');
+
+const validation = require('./api/validation');
+const ValidationService = require('./service/postgres/ValidationService');
+const claimValidation = require('./validator/validation');
 
 const init = async () => {
   const usersService = new UserService();
@@ -32,6 +38,9 @@ const init = async () => {
   const postService = new PostService();
   const foundItemService = new FoundItemService();
   const locationService = new LocationService();
+  const answerService = new AnswerService();
+  const questionService = new QuestionService();
+  const validationService = new ValidationService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -93,9 +102,17 @@ const init = async () => {
       plugin: post,
       options: {
         postService,
-        validator: postValidator,
         foundItemService,
         locationService,
+        questionService,
+        validator: postValidator,
+      },
+    },
+    {
+      plugin: validation,
+      options: {
+        validationService,
+        validator: claimValidation,
       },
     },
   ]);
