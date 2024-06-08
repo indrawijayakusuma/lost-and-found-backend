@@ -1,9 +1,10 @@
 const { nanoid } = require('nanoid');
+const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 
 class ValidationService {
-  constructor(pool) {
-    this.pool = pool;
+  constructor() {
+    this.pool = new Pool();
   }
 
   async createValidation({ statusValidation, postId, validationUserId }) {
