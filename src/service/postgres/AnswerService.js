@@ -1,10 +1,9 @@
 const { nanoid } = require('nanoid');
-const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 
 class AnswerService {
-  constructor() {
-    this.pool = new Pool();
+  constructor(pool) {
+    this.pool = pool;
   }
 
   async createAnswer({ answer, questionId, validationId }) {

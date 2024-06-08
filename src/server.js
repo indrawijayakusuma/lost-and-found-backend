@@ -3,6 +3,7 @@
 const Hapi = require('@hapi/hapi');
 require('dotenv').config();
 const HapiAuthJwt2 = require('hapi-auth-jwt2');
+const { Pool } = require('pg');
 
 const Inert = require('@hapi/inert');
 const path = require('path');
@@ -32,13 +33,17 @@ const validation = require('./api/validation');
 const ValidationService = require('./service/postgres/ValidationService');
 const claimValidation = require('./validator/validation');
 
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+});
+
 const init = async () => {
   const usersService = new UserService();
   const otpService = new OtpService();
   const postService = new PostService();
-  const foundItemService = new FoundItemService();
+  const foundItemService = new FoundItemService(pool);
   const locationService = new LocationService();
-  const answerService = new AnswerService();
+  const answerService = new AnswerService(pool);
   const questionService = new QuestionService();
   const validationService = new ValidationService();
 
