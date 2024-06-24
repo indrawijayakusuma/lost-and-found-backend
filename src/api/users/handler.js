@@ -34,8 +34,7 @@ class UserHandler {
   }
 
   async getUserByIdHandler(request) {
-    const { id } = request.params;
-
+    const { id } = request.auth.credentials;
     const user = await this.service.getUserById(id);
 
     return {

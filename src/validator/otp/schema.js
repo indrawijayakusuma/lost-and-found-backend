@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const OtpPayloadSchema = Joi.object({
-  otp: Joi.number().required(),
+  otp: Joi.string().required(),
 });
 
 module.exports = {

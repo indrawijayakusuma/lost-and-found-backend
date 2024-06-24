@@ -9,8 +9,11 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
-    path: '/users/{id}',
+    path: '/users',
     handler: (request, h) => handler.getUserByIdHandler(request, h),
+    options: {
+      auth: 'jwt',
+    },
   },
 ];
 

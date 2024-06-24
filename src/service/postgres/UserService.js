@@ -92,7 +92,7 @@ class UserService {
       convertedPhone = phone;
     }
     const query = {
-      text: 'SELECT user_id, password FROM users WHERE phone = $1 AND is_verified = true',
+      text: 'SELECT user_id, password, fullname, picture FROM users WHERE phone = $1 AND is_verified = true',
       values: [convertedPhone],
     };
 
@@ -102,7 +102,9 @@ class UserService {
       throw new AuthenticationsError('Nomor telfon atau password yang anda masukan salah');
     }
 
-    const { user_id: id, password: hashPassword } = result.rows[0];
+    const {
+      user_id: id, password: hashPassword, fullname, picture,
+    } = result.rows[0];
 
     const isMatch = await bcrypt.compare(password, hashPassword);
 
@@ -110,7 +112,7 @@ class UserService {
       throw new AuthenticationsError('Nomor telfon atau password yang anda masukan salah');
     }
 
-    return id;
+    return { id, fullname, picture };
   }
 
   async verifyUser(phone) {

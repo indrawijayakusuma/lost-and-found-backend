@@ -51,6 +51,32 @@ class PostHandler {
     response.code(201);
     return response;
   }
+
+  async getPostHandler(request, h) {
+    const { search, limit = 12, page = 1 } = request.query;
+
+    const result = await this.postService.getFoundItemPosts({ search, limit, page });
+    const response = h.response({
+      status: 'success',
+      data: {
+        posts: result,
+      },
+    });
+    response.code(200);
+    return response;
+  }
+
+  async getPostByidHandler(request, h) {
+    const { id } = request.params;
+    const post = await this.postService.getPostById(id);
+
+    const response = h.response({
+      status: 'success',
+      data: post,
+    });
+    response.code(200);
+    return response;
+  }
 }
 
 module.exports = PostHandler;

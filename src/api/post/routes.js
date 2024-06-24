@@ -14,6 +14,22 @@ const routes = (handler) => [
       },
     },
   },
+  {
+    method: 'GET',
+    path: '/posts',
+    handler: (request, h) => handler.getPostHandler(request, h),
+    options: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
+    path: '/posts/{id}',
+    handler: (request, h) => handler.getPostByidHandler(request, h),
+    options: {
+      auth: 'jwt',
+    },
+  },
 ];
 
 module.exports = routes;

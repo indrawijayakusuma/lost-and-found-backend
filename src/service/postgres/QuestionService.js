@@ -7,6 +7,18 @@ class QuestionService {
     this.pool = new Pool();
   }
 
+  async getQuestionByPostId({ postId }) {
+    const query = {
+      text: 'SELECT question as questions, post_id FROM questions WHERE post_id = $1',
+      values: [postId],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Questions not found');
+    }
+    return result.rows[0];
+  }
+
   async createQuestion({ questions, postId }) {
     const id = `question-${nanoid(16)}`;
     const query = {

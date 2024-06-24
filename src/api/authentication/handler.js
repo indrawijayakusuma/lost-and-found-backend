@@ -13,7 +13,7 @@ class AuthenticationsHandler {
     this.validator.validatePostAuthenticationPayload(request.payload);
 
     const { phone, password } = request.payload;
-    const id = await this.usersService.verifyUserCredential(phone, password);
+    const { id, fullname, picture } = await this.usersService.verifyUserCredential(phone, password);
 
     const accessToken = this.tokenManager.generateAccessToken({ id });
     const refreshToken = this.tokenManager.generateRefreshToken({ id });
@@ -25,6 +25,11 @@ class AuthenticationsHandler {
       message: 'Authentication berhasil ditambahkan',
       data: {
         accessToken,
+        user: {
+          id,
+          fullname,
+          picture,
+        },
       },
     });
     response.code(200);

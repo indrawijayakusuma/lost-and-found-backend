@@ -33,6 +33,8 @@ const validation = require('./api/validation');
 const ValidationService = require('./service/postgres/ValidationService');
 const claimValidation = require('./validator/validation');
 
+const question = require('./api/question');
+
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
 });
@@ -117,7 +119,14 @@ const init = async () => {
       plugin: validation,
       options: {
         validationService,
+        answerService,
         validator: claimValidation,
+      },
+    },
+    {
+      plugin: question,
+      options: {
+        questionService,
       },
     },
   ]);

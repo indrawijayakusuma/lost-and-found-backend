@@ -6,11 +6,11 @@ class AnswerService {
     this.pool = pool;
   }
 
-  async createAnswer({ answer, questionId, validationId }) {
+  async createAnswer({ answer, validationId }) {
     const id = `answer-${nanoid(16)}`;
     const query = {
-      text: 'INSERT INTO answers VALUES($1, $2, $3, $4) RETURNING *',
-      values: [id, answer, questionId, validationId],
+      text: 'INSERT INTO answers VALUES($1, $2, $3) RETURNING *',
+      values: [id, answer, validationId],
     };
     const result = await this.pool.query(query);
     if (!result.rowCount) {
