@@ -23,7 +23,7 @@ class OtpHandler {
 
   async createTokenHandler(request, h) {
     const { phone } = request.payload;
-    const otp = await this.otpservice.createOtp(phone);
+    const otp = await this.otpService.createOtp(phone);
     let convertedPhone;
     if (phone.charAt(0) === '0') {
       convertedPhone = phone.substring(1);
