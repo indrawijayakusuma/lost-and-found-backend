@@ -23,6 +23,9 @@ class PostHandler {
     const result = await cloudinary.uploader.upload(image.path, {
       transformation: [
         {
+          aspect_ratio: '1.0', gravity: 'center', crop: 'fill',
+        },
+        {
           effect: 'blur:2000',
         },
       ],
@@ -73,6 +76,17 @@ class PostHandler {
     const response = h.response({
       status: 'success',
       data: post,
+    });
+    response.code(200);
+    return response;
+  }
+
+  async getPostByUserIdHandler(request, h) {
+    const { id: userId } = request.auth.credentials;
+    const result = await this.postService.getPostsByUserId({ userId });
+    const response = h.response({
+      status: 'success',
+      data: result,
     });
     response.code(200);
     return response;

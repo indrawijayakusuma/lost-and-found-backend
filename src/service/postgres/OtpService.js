@@ -72,6 +72,18 @@ class OtpService {
       throw new InvariantError('Gagal menghapus OTP');
     }
   }
+
+  async getOtpByPhoneAndOtpCode(phone, otp) {
+    const query = {
+      text: 'SELECT * FROM otps WHERE phone = $1 AND otp_code = $2',
+      values: [phone, otp],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('OTP tidak valid');
+    }
+    return result.rows[0];
+  }
 }
 
 module.exports = OtpService;

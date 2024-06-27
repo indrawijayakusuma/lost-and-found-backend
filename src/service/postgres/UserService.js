@@ -60,6 +60,67 @@ class UserService {
     return result.rows[0].user_id;
   }
 
+  async updateUser({
+    userId, fullname, username, email,
+  }) {
+    const query = {
+      text: 'UPDATE users SET fullname = $1, username = $2, email = $3 WHERE user_id = $4',
+      values: [fullname, username, email, userId],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Gagal memperbarui user');
+    }
+  }
+
+  async updatePicture({ userId, picture }) {
+    const query = {
+      text: 'UPDATE users SET picture = $1 WHERE user_id = $2 returning *',
+      values: [picture, userId],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Gagal memperbarui image profile');
+    }
+  }
+
+  async updatePassword({ id, password, oldPassword }) {
+    const query1 = {
+      text: 'SELECT password FROM users WHERE user_id = $1',
+      values: [id],
+    };
+
+    const resultPassword = await this.pool.query(query1);
+    if (!resultPassword.rowCount) {
+      throw new InvariantError('User tidak ditemukan');
+    }
+
+    const checkPassword = await bcrypt.compare(oldPassword, resultPassword.rows[0].password);
+    if (!checkPassword) {
+      throw new InvariantError('Password lama tidak sesuai');
+    }
+
+    const query = {
+      text: 'UPDATE users SET password = $1 WHERE user_id = $2',
+      values: [password, id],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Gagal memperbarui password');
+    }
+  }
+
+  async updateForgetPassword({ phone, password }) {
+    const query = {
+      text: 'UPDATE users SET password = $1 WHERE phone = $2',
+      values: [password, phone],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Gagal memperbarui password');
+    }
+  }
+
   async verifyNewUsername(username) {
     const query = {
       text: 'SELECT username FROM users WHERE username = $1 AND is_verified = true',

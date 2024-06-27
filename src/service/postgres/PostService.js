@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
@@ -30,7 +31,7 @@ class PostService {
     let query;
     if (search) {
       query = {
-        text: `SELECT posts.post_id, item_name, tipe_barang, location, address
+        text: `SELECT posts.post_id, item_name, tipe_barang, location, address, count(found_items.post_id) over() as total
         FROM posts 
         INNER JOIN found_items ON found_items.post_id = posts.post_id
         INNER JOIN locations ON locations.found_item_id= found_items.post_id
@@ -51,7 +52,8 @@ class PostService {
       };
     }
     const result = await this.pool.query(query);
-    const { total } = result.rows[0];
+    let total;
+    !result.rowCount ? total = 0 : total = result.rows[0].total;
     const numTotal = parseInt(total, 10);
     const totalPage = Math.ceil(numTotal / limitNum);
     const startIndex = (page - 1) * limit + 1;
@@ -69,13 +71,13 @@ class PostService {
     };
   }
 
-  async getPostsByUserId(userId) {
+  async getPostsByUserId({ userId }) {
     const query = {
-      text: `SELECT posts.post_id, item_name, location, address, status_validation  
+      text: `SELECT posts.post_id, item_name, location, address, image 
       FROM posts 
       INNER JOIN found_items ON found_items.post_id = posts.post_id
-      INNER JOIN locations ON locations.location_id = found_items.post_id
-      WHERE user_id = $1`,
+      INNER JOIN locations ON locations.found_item_id = found_items.post_id
+      WHERE posts.user_id =  $1`,
       values: [userId],
     };
     const result = await this.pool.query(query);

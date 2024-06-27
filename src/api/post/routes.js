@@ -30,6 +30,14 @@ const routes = (handler) => [
       auth: 'jwt',
     },
   },
+  {
+    method: 'GET',
+    path: '/posts/user',
+    handler: (request, h) => handler.getPostByUserIdHandler(request, h),
+    options: {
+      auth: 'jwt',
+    },
+  },
 ];
 
 module.exports = routes;
