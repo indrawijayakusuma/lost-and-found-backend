@@ -2,7 +2,7 @@ const routes = (handler) => [
   {
     method: 'POST',
     path: '/otps/validate-user',
-    handler: (request, h) => handler.validateOtpRegisterPayload(request, h),
+    handler: (request, h) => handler.verifyOtpHandler(request, h),
     options: {
       auth: false,
     },
