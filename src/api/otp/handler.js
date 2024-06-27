@@ -44,18 +44,6 @@ class OtpHandler {
     return response;
   }
 
-  async verifyOtpHandler(request, h) {
-    this.validator.validateOtpRegisterPayload(request.payload);
-    await this.otpService.verifyOtp(request.payload.otp);
-
-    const response = h.response({
-      status: 'success',
-      message: 'Berhasil mendaftarkan akun',
-    });
-    response.code(200);
-    return response;
-  }
-
   async getOtpByPhoneAndOtpCodeHandler(request, h) {
     const { phone, otp } = request.query;
     const otpData = await this.otpService.getOtpByPhoneAndOtpCode(phone, otp);
