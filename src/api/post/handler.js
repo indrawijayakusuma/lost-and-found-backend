@@ -56,9 +56,13 @@ class PostHandler {
   }
 
   async getPostHandler(request, h) {
-    const { search, limit = 12, page = 1 } = request.query;
+    const {
+      search, limit = 12, page = 1, location,
+    } = request.query;
 
-    const result = await this.postService.getFoundItemPosts({ search, limit, page });
+    const result = await this.postService.getFoundItemPosts({
+      search, limit, page, location,
+    });
     const response = h.response({
       status: 'success',
       data: {

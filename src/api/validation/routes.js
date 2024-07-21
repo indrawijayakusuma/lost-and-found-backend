@@ -34,6 +34,11 @@ const routes = (handler) => [
     path: '/claim-validation/{id}/complete',
     handler: (request, h) => handler.completeValidationHandler(request, h),
   },
+  {
+    method: 'GET',
+    path: '/claim-validation/check-validation',
+    handler: (request, h) => handler.checkValidationHandler(request, h),
+  },
 ];
 
 module.exports = routes;

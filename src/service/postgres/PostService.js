@@ -24,36 +24,43 @@ class PostService {
     return result.rows[0].post_id;
   }
 
-  async getFoundItemPosts({ search, limit, page }) {
+  async getFoundItemPosts({
+    search, limit, page, location,
+  }) {
     const limitNum = parseInt(limit, 10);
     const offset = (page - 1) * limit;
     const searchAdd = `%${search}%`;
-    let query;
+
+    let queryText = `
+      SELECT posts.post_id, item_name, tipe_barang, location, address, count(found_items.post_id) over() as total
+      FROM posts 
+      INNER JOIN found_items ON found_items.post_id = posts.post_id
+      INNER JOIN locations ON locations.found_item_id = found_items.post_id
+      WHERE is_claimed = false
+    `;
+    const queryValues = [];
+
     if (search) {
-      query = {
-        text: `SELECT posts.post_id, item_name, tipe_barang, location, address, count(found_items.post_id) over() as total
-        FROM posts 
-        INNER JOIN found_items ON found_items.post_id = posts.post_id
-        INNER JOIN locations ON locations.found_item_id= found_items.post_id
-        WHERE is_claimed = false
-        AND LOWER(item_name) LIKE LOWER($1)
-        LIMIT $2 OFFSET $3`,
-        values: [searchAdd, limitNum, offset],
-      };
-    } else {
-      query = {
-        text: `SELECT posts.post_id, item_name, tipe_barang, location, address, count(found_items.post_id) over() as total 
-        FROM posts 
-        INNER JOIN found_items ON found_items.post_id = posts.post_id
-        INNER JOIN locations ON locations.found_item_id= found_items.post_id
-        WHERE is_claimed = false
-        LIMIT $1 OFFSET $2`,
-        values: [limitNum, offset],
-      };
+      queryText += ` AND LOWER(item_name) LIKE LOWER($${queryValues.length + 1})`;
+      queryValues.push(searchAdd);
     }
+
+    if (location) {
+      queryText += ` AND LOWER(location) = LOWER($${queryValues.length + 1})`;
+      queryValues.push(location);
+    }
+    queryText += ` LIMIT $${queryValues.length + 1} OFFSET $${queryValues.length + 2}`;
+    queryValues.push(limitNum, offset);
+
+    const query = {
+      text: queryText,
+      values: queryValues,
+    };
+
     const result = await this.pool.query(query);
     let total;
     !result.rowCount ? total = 0 : total = result.rows[0].total;
+    // num total means total of posts
     const numTotal = parseInt(total, 10);
     const totalPage = Math.ceil(numTotal / limitNum);
     const startIndex = (page - 1) * limit + 1;
@@ -97,7 +104,7 @@ class PostService {
 
   async getPostById(postId) {
     const query = {
-      text: `SELECT posts.post_id, item_name, location, address, additional_info, found_items.date, found_items.image, users.user_id, users.fullname, users.picture 
+      text: `SELECT posts.post_id, is_claimed, item_name, location, address, additional_info, found_items.date, found_items.image, users.user_id, users.fullname, users.picture 
       FROM posts 
       INNER JOIN found_items ON found_items.post_id = posts.post_id
       INNER JOIN locations ON locations.found_item_id = found_items.post_id
@@ -111,11 +118,12 @@ class PostService {
     }
     const {
       post_id, item_name, location, address, additional_info, date,
-      image, fullname, picture, user_id,
+      image, fullname, picture, user_id, is_claimed,
     } = result.rows[0];
     const postNumber = await this.getNumberOfPostsByUserId(user_id);
     return {
       post_id,
+      is_claimed,
       item_name,
       location,
       address,

@@ -9,7 +9,10 @@ class ValidationService {
   }
 
   async createValidation({ postId, validationUserId }) {
-    await this.validateValidationByValidationUserId(postId, validationUserId);
+    const res = await this.validateValidationByValidationUserId(postId, validationUserId);
+    if (res) {
+      throw new InvariantError('Anda telah melakukan Klaim pada barang ini');
+    }
     const statusValidation = 'Diproses';
     const id = `validation-${nanoid(16)}`;
     const date = new Date();
@@ -53,13 +56,26 @@ class ValidationService {
   }
 
   async completeValidation({ id }) {
-    const query = {
-      text: "UPDATE validations SET status_validation = 'Selesai' WHERE validation_id = $1 RETURNING *",
-      values: [id],
-    };
+    try {
+      await this.pool.query('BEGIN');
 
-    const result = await this.pool.query(query);
-    if (!result.rowCount) {
+      // Update the validations table
+      const updateValidationQuery = {
+        text: 'UPDATE validations SET status_validation = $1 WHERE post_id = $2',
+        values: ['Selesai', id],
+      };
+      await this.pool.query(updateValidationQuery);
+
+      // Update the posts table
+      const updatePostQuery = {
+        text: 'UPDATE posts SET is_claimed = $1 WHERE post_id = $2',
+        values: [true, id],
+      };
+      await this.pool.query(updatePostQuery);
+
+      await this.pool.query('COMMIT');
+    } catch (error) {
+      await this.pool.query('ROLLBACK');
       throw new InvariantError('Failed to update validation');
     }
   }
@@ -129,8 +145,9 @@ class ValidationService {
     };
     const result = await this.pool.query(query);
     if (result.rowCount) {
-      throw new InvariantError('Anda telah melakukan Klaim pada barang ini');
+      return true;
     }
+    return false;
   }
 }
 

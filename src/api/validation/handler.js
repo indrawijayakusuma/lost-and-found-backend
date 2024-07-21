@@ -87,6 +87,18 @@ class ValidationHandler {
     response.code(200);
     return response;
   }
+
+  async checkValidationHandler(request, h) {
+    const { postId, validationUserId } = request.query;
+    const result = await
+    this.validationService.validateValidationByValidationUserId(postId, validationUserId);
+    const response = h.response({
+      status: 'success',
+      result,
+    });
+    response.code(200);
+    return response;
+  }
 }
 
 module.exports = ValidationHandler;
