@@ -85,6 +85,17 @@ class PostHandler {
     return response;
   }
 
+  async getPostUpdateByIdHandler(request, h) {
+    const { id } = request.params;
+    const result = await this.postService.getPostUpdateById(id);
+    const response = h.response({
+      status: 'success',
+      data: result,
+    });
+    response.code(200);
+    return response;
+  }
+
   async getPostByUserIdHandler(request, h) {
     const { id: userId } = request.auth.credentials;
     const result = await this.postService.getPostsByUserId({ userId });

@@ -78,6 +78,24 @@ class PostService {
     };
   }
 
+  async getPostUpdateById(postId) {
+    const query = {
+      text: `SELECT posts.post_id, user_id, item_name, tipe_barang, color, secondary_color, found_items.date, 
+      image, location_id, label_location, location, address, additional_info, found_item_id, question_id, question
+      FROM posts 
+      INNER JOIN found_items ON found_items.post_id = posts.post_id
+      INNER JOIN locations ON locations.found_item_id = found_items.post_id
+      INNER JOIN questions ON questions.post_id = posts.post_id
+      WHERE posts.post_id = $1`,
+      values: [postId],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('Post tidak tersedia');
+    }
+    return result.rows[0];
+  }
+
   async getPostsByUserId({ userId }) {
     const query = {
       text: `SELECT posts.post_id, item_name, location, address, image 

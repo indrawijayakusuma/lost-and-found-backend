@@ -32,6 +32,14 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
+    path: '/posts/{id}/update',
+    handler: (request, h) => handler.getPostUpdateByIdHandler(request, h),
+    options: {
+      auth: 'jwt',
+    },
+  },
+  {
+    method: 'GET',
     path: '/posts/user',
     handler: (request, h) => handler.getPostByUserIdHandler(request, h),
     options: {
