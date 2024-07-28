@@ -55,6 +55,65 @@ class PostHandler {
     return response;
   }
 
+  async updatePostHandler(request, h) {
+    const {
+      itemName, tipeBarang, color, secondaryColor, date, image,
+      labelLocation, location, address, additionalInfo, postId, locationId, questionId,
+    } = request.payload;
+
+    this.validator.validateUpdatePayload(request.payload);
+
+    const { id: userId } = request.auth.credentials;
+    await this.postService.validatePostOwner({ userId, postId });
+    let url;
+
+    if (image.path) {
+      const result = await cloudinary.uploader.upload(image.path, {
+        transformation: [
+          {
+            aspect_ratio: '1.0', gravity: 'center', crop: 'fill',
+          },
+          {
+            effect: 'blur:2000',
+          },
+        ],
+      });
+
+      url = result.secure_url;
+      fs.unlinkSync(image.path);
+    } else {
+      url = image;
+    }
+
+    const questions = JSON.parse(request.payload.questions);
+
+    const data = {
+      itemName,
+      tipeBarang,
+      color,
+      secondaryColor,
+      date,
+      url,
+      labelLocation,
+      location,
+      address,
+      additionalInfo,
+      postId,
+      locationId,
+      questions,
+      questionId,
+    };
+
+    await this.postService.updatePost(data);
+
+    const response = h.response({
+      status: 'success',
+      message: 'Post berhasil ditambahkan',
+    });
+    response.code(204);
+    return response;
+  }
+
   async getPostHandler(request, h) {
     const {
       search, limit = 12, page = 1, location,

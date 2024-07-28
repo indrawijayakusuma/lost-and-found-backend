@@ -15,6 +15,22 @@ const routes = (handler) => [
     },
   },
   {
+    method: 'POST',
+    path: '/posts/update',
+    handler: (request, h) => handler.updatePostHandler(request, h),
+    options: {
+      auth: 'jwt',
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        parse: true,
+        output: 'file',
+        maxBytes: 10 * 1024 * 1024,
+      },
+    },
+
+  },
+  {
     method: 'GET',
     path: '/posts',
     handler: (request, h) => handler.getPostHandler(request, h),

@@ -78,6 +78,56 @@ class PostService {
     };
   }
 
+  async updatePost({
+    itemName, tipeBarang, color, secondaryColor, date, url: image,
+    labelLocation, location, address, additionalInfo, postId, locationId, questions, questionId,
+  }) {
+    try {
+      await this.pool.query('BEGIN');
+
+      const queryUpdateFoundItem = {
+        text: `UPDATE found_items 
+        SET item_name = $1, tipe_barang = $2, color = $3, secondary_color = $4, date = $5, image = $6
+        WHERE post_id = $7`,
+        values: [
+          itemName,
+          tipeBarang,
+          color,
+          secondaryColor,
+          date,
+          image,
+          postId,
+        ],
+      };
+      await this.pool.query(queryUpdateFoundItem);
+
+      const queryUpdateLocation = {
+        text: `UPDATE locations
+        SET label_location = $1, location = $2, address = $3, additional_info = $4, found_item_id = $5
+        WHERE location_id = $6`,
+        values: [
+          labelLocation, location, address, additionalInfo, postId, locationId,
+        ],
+      };
+      await this.pool.query(queryUpdateLocation);
+
+      const queryUpdateQuestion = {
+        text: `UPDATE questions
+        SET question = $1
+        WHERE question_id = $2`,
+        values: [
+          questions, questionId,
+        ],
+      };
+      await this.pool.query(queryUpdateQuestion);
+
+      await this.pool.query('COMMIT');
+    } catch {
+      await this.pool.query('ROLLBACK');
+      throw new InvariantError('Failed to update post');
+    }
+  }
+
   async getPostUpdateById(postId) {
     const query = {
       text: `SELECT posts.post_id, user_id, item_name, tipe_barang, color, secondary_color, found_items.date, 
@@ -153,6 +203,19 @@ class PostService {
       user_id,
       postNumber,
     };
+  }
+
+  async validatePostOwner({ postId, userId }) {
+    const query = {
+      text: `SELECT *
+      FROM posts
+      WHERE user_id = $1 and post_id = $2`,
+      values: [userId, postId],
+    };
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new InvariantError('user bukan pemilik postingan');
+    }
   }
 }
 
